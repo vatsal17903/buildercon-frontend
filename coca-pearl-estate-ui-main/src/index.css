@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Coca Pearl Theme - Real Estate Management */
+    --background: 30 25% 94%; /* #EDE3DB */
+    --foreground: 15 20% 15%; /* Dark text */
+
+    --card: 30 25% 96%; /* Lighter card background */
+    --card-foreground: 15 20% 15%;
+
+    --popover: 30 25% 96%;
+    --popover-foreground: 15 20% 15%;
+
+    --primary: 15 20% 20%; /* #402E2A */
+    --primary-foreground: 30 25% 94%;
+
+    --secondary: 25 15% 65%; /* #947C70 */
+    --secondary-foreground: 15 20% 15%;
+
+    --muted: 30 25% 90%;
+    --muted-foreground: 25 10% 45%;
+
+    --accent: 25 15% 65%; /* #947C70 */
+    --accent-foreground: 15 20% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 30 25% 94%;
+
+    --border: 25 15% 80%;
+    --input: 30 25% 92%;
+    --ring: 15 20% 20%;
+
+    /* Real Estate specific tokens */
+    --sidebar-bg: 15 20% 20%; /* #402E2A */
+    --sidebar-text: 30 25% 94%;
+    --sidebar-accent: 25 15% 65%; /* #947C70 */
+    --dashboard-surface: 30 25% 96%;
+    --dashboard-border: 25 15% 85%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(15 20% 20%), hsl(25 15% 65%));
+    --gradient-surface: linear-gradient(180deg, hsl(30 25% 96%), hsl(30 25% 94%));
+    
+    /* Shadows */
+    --shadow-card: 0 4px 12px hsl(15 20% 20% / 0.1);
+    --shadow-elevated: 0 8px 24px hsl(15 20% 20% / 0.15);
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@keyframes fadeInScale {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.8) translateY(10px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+@keyframes slideInRight {
+  0% { 
+    opacity: 0; 
+    transform: translateX(-20px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+}
