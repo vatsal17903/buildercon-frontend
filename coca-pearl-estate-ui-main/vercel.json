@@ -1,4 +1,5 @@
 {
+  "preBuild": "rm -rf node_modules && rm -f package-lock.json",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
