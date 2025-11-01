@@ -89,6 +89,8 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submitted with data:', formData);
+    
     // Validate required fields for booking
     if (!formData.buyerName || !formData.buyerEmail || !formData.buyerPhone) {
       toast.error('Please fill in all required buyer information fields');
@@ -117,9 +119,14 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
       status: 'booked'
     };
     
+    console.log('Booking data prepared:', bookingData);
+    console.log('Calling onBookUnit with unit.id:', unit.id);
+    
     // Call the callback function to update unit status
     if (onBookUnit) {
       onBookUnit(unit.id, bookingData);
+    } else {
+      console.error('onBookUnit callback is not provided!');
     }
   };
 
@@ -478,26 +485,25 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
             </div>
           </div>
 
-          {/* Submit Button - Only show for available units */}
-          {unit.status === 'available' && (
-            <div className="flex justify-end gap-3 pt-4 border-t border-accent/20">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="border-accent/30 text-foreground hover:bg-surface-secondary"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="bg-accent hover:bg-primary text-white"
-              >
-                Submit Unit Details
-              </Button>
-            </div>
-          )}
-
+            {/* Submit Button - Only show for available units */}
+            {unit.status === 'available' && (
+              <div className="flex justify-end gap-3 pt-4 border-t border-accent/20">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  className="border-accent/30 text-foreground hover:bg-surface-secondary"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-accent hover:bg-primary text-white"
+                >
+                  Submit Unit Details
+                </Button>
+              </div>
+            )}
           </div>
         </form>
       </SheetContent>
