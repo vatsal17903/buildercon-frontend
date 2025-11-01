@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 interface UnitDetailDrawerProps {
   open: boolean;
@@ -38,8 +40,49 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
   onClose,
   unit
 }) => {
+  const [formData, setFormData] = useState({
+    buyerName: unit.status === 'booked' ? 'John Doe' : '',
+    buyerEmail: unit.status === 'booked' ? 'john.doe@example.com' : '',
+    buyerPhone: unit.status === 'booked' ? '+91 9876543210' : '',
+    gstNumber: unit.status === 'booked' ? 'GSTIN12345ABC67' : '',
+    municipalTax: '50000',
+    electricityTax: '10000',
+    paymentType: unit.status === 'booked' ? 'bank-transfer' : '',
+    paidAmount: unit.status === 'booked' ? '3000000' : '',
+    bookingDate: unit.status === 'booked' ? '2024-01-15' : '',
+    agreementDate: unit.status === 'booked' ? '2024-01-20' : '',
+    possessionDate: unit.status === 'booked' ? '2024-12-31' : '',
+    registrationDate: unit.status === 'booked' ? '2024-02-10' : ''
+  });
 
   if (!unit) return null;
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.buyerName || !formData.buyerEmail || !formData.buyerPhone) {
+      toast.error('Please fill in all required buyer information fields');
+      return;
+    }
+    
+    // Here you would typically send the data to your backend
+    console.log('Submitting unit details:', {
+      unitId: unit.id,
+      unitName: unit.name,
+      ...formData
+    });
+    
+    toast.success('Unit details submitted successfully!');
+    onClose();
+  };
 
   // Mock data for demonstration, replace with actual unit data
   const mockUnitDetails: Unit = {
@@ -63,10 +106,10 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
 
   const calculateCosts = () => {
     const baseCost = (parseFloat(mockUnitDetails.size || '0') || 0) * (parseFloat(mockUnitDetails.pricePerSqFt || '0') || 0);
-    const municipalTax = parseFloat(mockUnitDetails.municipalTax || '0') || 0;
-    const electricityTax = parseFloat(mockUnitDetails.electricityTax || '0') || 0;
+    const municipalTax = parseFloat(formData.municipalTax || '0') || 0;
+    const electricityTax = parseFloat(formData.electricityTax || '0') || 0;
     const totalCost = baseCost + municipalTax + electricityTax;
-    const paidAmount = parseFloat(mockUnitDetails.paidAmount || '0') || 0;
+    const paidAmount = parseFloat(formData.paidAmount || '0') || 0;
     const pendingAmount = totalCost - paidAmount;
 
     return {
@@ -93,7 +136,8 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
           </SheetTitle>
         </SheetHeader>
 
-        <div className="p-4 space-y-6">
+        <form onSubmit={handleSubmit}>
+          <div className="p-4 space-y-6">
           {/* Seller and Building Details Section */}
           <div>
             <h3 className="text-lg font-medium text-foreground mb-4">General Information</h3>
@@ -133,26 +177,170 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
 
           {/* Buyer Information Section */}
           <div>
-            <h3 className="text-lg font-medium text-foreground mb-4">Buyer Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="buyerName" className="text-sm font-medium text-foreground">Name</Label>
-                <Input id="buyerName" value={mockUnitDetails.buyerName} readOnly className="mt-1 bg-background border-accent/30" />
+            <h3 className="text-lg font-medium text-foreground mb-4">
+              {unit.status === 'booked' ? 'Customer Information' : 'Buyer Information'}
+            </h3>
+            {unit.status === 'booked' ? (
+              // Display customer info for booked units (read-only)
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Customer Name</Label>
+                    <p className="text-foreground font-semibold mt-1">{formData.buyerName}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Email Address</Label>
+                    <p className="text-foreground font-semibold mt-1">{formData.buyerEmail}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Phone Number</Label>
+                    <p className="text-foreground font-semibold mt-1">{formData.buyerPhone}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">GST Number</Label>
+                    <p className="text-foreground font-semibold mt-1">{formData.gstNumber || 'N/A'}</p>
+                  </div>
+                </div>
+                
+                {/* Booking Timeline */}
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <h4 className="font-medium text-foreground mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    Booking Timeline
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Booked on:</span>
+                      <span className="font-medium text-foreground">{formData.bookingDate}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Agreement:</span>
+                      <span className="font-medium text-foreground">{formData.agreementDate}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Possession:</span>
+                      <span className="font-medium text-foreground">{formData.possessionDate}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Registered:</span>
+                      <span className="font-medium text-foreground">{formData.registrationDate}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Booking Status Badge */}
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-foreground">Status:</span>
+                    <Badge className="bg-destructive text-destructive-foreground">
+                      Unit Booked
+                    </Badge>
+                  </div>
+                </div>
               </div>
-              <div>
-                <Label htmlFor="buyerEmail" className="text-sm font-medium text-foreground">Email</Label>
-                <Input id="buyerEmail" value={mockUnitDetails.buyerEmail} readOnly className="mt-1 bg-background border-accent/30" />
+            ) : (
+              // Editable form for available units
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="buyerName" className="text-sm font-medium text-foreground">Name <span className="text-destructive">*</span></Label>
+                  <Input 
+                    id="buyerName" 
+                    value={formData.buyerName} 
+                    onChange={(e) => handleInputChange('buyerName', e.target.value)}
+                    placeholder="Enter buyer name"
+                    className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="buyerEmail" className="text-sm font-medium text-foreground">Email <span className="text-destructive">*</span></Label>
+                  <Input 
+                    id="buyerEmail" 
+                    type="email"
+                    value={formData.buyerEmail} 
+                    onChange={(e) => handleInputChange('buyerEmail', e.target.value)}
+                    placeholder="Enter email address"
+                    className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="buyerPhone" className="text-sm font-medium text-foreground">Phone Number <span className="text-destructive">*</span></Label>
+                  <Input 
+                    id="buyerPhone" 
+                    value={formData.buyerPhone} 
+                    onChange={(e) => handleInputChange('buyerPhone', e.target.value)}
+                    placeholder="Enter phone number"
+                    className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="gstNumber" className="text-sm font-medium text-foreground">GST Number</Label>
+                  <Input 
+                    id="gstNumber" 
+                    value={formData.gstNumber} 
+                    onChange={(e) => handleInputChange('gstNumber', e.target.value)}
+                    placeholder="Enter GST number (optional)"
+                    className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                  />
+                </div>
               </div>
-              <div>
-                <Label htmlFor="buyerPhone" className="text-sm font-medium text-foreground">Phone Number</Label>
-                <Input id="buyerPhone" value={mockUnitDetails.buyerPhone} readOnly className="mt-1 bg-background border-accent/30" />
-              </div>
-              <div>
-                <Label htmlFor="gstNumber" className="text-sm font-medium text-foreground">GST Number</Label>
-                <Input id="gstNumber" value={mockUnitDetails.gstNumber} readOnly className="mt-1 bg-background border-accent/30" />
-              </div>
-            </div>
+            )}
           </div>
+
+          {/* Booking Details Section - Only show for available units */}
+          {unit.status === 'available' && (
+            <>
+              <Separator className="bg-accent/20" />
+              
+              <div>
+                <h3 className="text-lg font-medium text-foreground mb-4">Booking Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="bookingDate" className="text-sm font-medium text-foreground">Booking Date</Label>
+                    <Input 
+                      id="bookingDate" 
+                      type="date"
+                      value={formData.bookingDate} 
+                      onChange={(e) => handleInputChange('bookingDate', e.target.value)}
+                      className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="agreementDate" className="text-sm font-medium text-foreground">Agreement Date</Label>
+                    <Input 
+                      id="agreementDate" 
+                      type="date"
+                      value={formData.agreementDate} 
+                      onChange={(e) => handleInputChange('agreementDate', e.target.value)}
+                      className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="possessionDate" className="text-sm font-medium text-foreground">Expected Possession Date</Label>
+                    <Input 
+                      id="possessionDate" 
+                      type="date"
+                      value={formData.possessionDate} 
+                      onChange={(e) => handleInputChange('possessionDate', e.target.value)}
+                      className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="registrationDate" className="text-sm font-medium text-foreground">Registration Date</Label>
+                    <Input 
+                      id="registrationDate" 
+                      type="date"
+                      value={formData.registrationDate} 
+                      onChange={(e) => handleInputChange('registrationDate', e.target.value)}
+                      className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
           <Separator className="bg-accent/20" />
 
@@ -162,11 +350,23 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="municipalTax" className="text-sm font-medium text-foreground">Municipal Corporation Tax (₹)</Label>
-                <Input id="municipalTax" value={mockUnitDetails.municipalTax} readOnly className="mt-1 bg-background border-accent/30" />
+                <Input 
+                  id="municipalTax" 
+                  type="number"
+                  value={formData.municipalTax} 
+                  onChange={(e) => handleInputChange('municipalTax', e.target.value)}
+                  className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                />
               </div>
               <div>
                 <Label htmlFor="electricityTax" className="text-sm font-medium text-foreground">Electricity Tax (₹)</Label>
-                <Input id="electricityTax" value={mockUnitDetails.electricityTax} readOnly className="mt-1 bg-background border-accent/30" />
+                <Input 
+                  id="electricityTax" 
+                  type="number"
+                  value={formData.electricityTax} 
+                  onChange={(e) => handleInputChange('electricityTax', e.target.value)}
+                  className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                />
               </div>
             </div>
           </div>
@@ -179,8 +379,8 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="paymentType" className="text-sm font-medium text-foreground">Payment Type</Label>
-                <Select value={mockUnitDetails.paymentType} disabled>
-                  <SelectTrigger className="mt-1 bg-background border-accent/30">
+                <Select value={formData.paymentType} onValueChange={(value) => handleInputChange('paymentType', value)}>
+                  <SelectTrigger className="mt-1 bg-background border-accent/30 focus:border-accent">
                     <SelectValue placeholder="Select payment type" />
                   </SelectTrigger>
                   <SelectContent className="bg-surface border-accent/20">
@@ -193,7 +393,14 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
               </div>
               <div>
                 <Label htmlFor="paidAmount" className="text-sm font-medium text-foreground">Paid Amount (₹)</Label>
-                <Input id="paidAmount" value={mockUnitDetails.paidAmount} readOnly className="mt-1 bg-background border-accent/30" />
+                <Input 
+                  id="paidAmount" 
+                  type="number"
+                  value={formData.paidAmount} 
+                  onChange={(e) => handleInputChange('paidAmount', e.target.value)}
+                  placeholder="Enter paid amount"
+                  className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                />
               </div>
             </div>
 
@@ -231,7 +438,29 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Submit Button - Only show for available units */}
+          {unit.status === 'available' && (
+            <div className="flex justify-end gap-3 pt-4 border-t border-accent/20">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="border-accent/30 text-foreground hover:bg-surface-secondary"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-accent hover:bg-primary text-white"
+              >
+                Submit Unit Details
+              </Button>
+            </div>
+          )}
+
+          </div>
+        </form>
       </SheetContent>
     </Sheet>
   );
