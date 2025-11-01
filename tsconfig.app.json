@@ -32,7 +32,8 @@
       "@assets/*": ["./src/assets/*"],
       "@services/*": ["./src/services/*"],
       "@types/*": ["./src/types/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@utils": ["./src/utils/index"]
     }
   },
   "include": ["src"]
