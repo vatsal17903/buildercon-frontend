@@ -13,6 +13,7 @@ interface UnitDetailDrawerProps {
   open: boolean;
   onClose: () => void;
   unit: Unit | null;
+  onBookUnit?: (unitId: string, bookingData: any) => void;
 }
 
 interface Unit {
@@ -38,7 +39,8 @@ interface Unit {
 const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
   open,
   onClose,
-  unit
+  unit,
+  onBookUnit
 }) => {
   const [formData, setFormData] = useState({
     buyerName: unit.status === 'booked' ? 'John Doe' : '',
@@ -67,21 +69,45 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate required fields
+    // Validate required fields for booking
     if (!formData.buyerName || !formData.buyerEmail || !formData.buyerPhone) {
       toast.error('Please fill in all required buyer information fields');
       return;
     }
     
-    // Here you would typically send the data to your backend
-    console.log('Submitting unit details:', {
-      unitId: unit.id,
-      unitName: unit.name,
-      ...formData
-    });
+    if (!formData.paidAmount || parseFloat(formData.paidAmount) <= 0) {
+      toast.error('Please enter a valid paid amount');
+      return;
+    }
     
-    toast.success('Unit details submitted successfully!');
-    onClose();
+    // Prepare booking data
+    const bookingData = {
+      buyerName: formData.buyerName,
+      buyerEmail: formData.buyerEmail,
+      buyerPhone: formData.buyerPhone,
+      gstNumber: formData.gstNumber,
+      bookingDate: formData.bookingDate || new Date().toISOString().split('T')[0],
+      agreementDate: formData.agreementDate,
+      possessionDate: formData.possessionDate,
+      registrationDate: formData.registrationDate,
+      municipalTax: formData.municipalTax,
+      electricityTax: formData.electricityTax,
+      paymentType: formData.paymentType,
+      paidAmount: formData.paidAmount,
+      status: 'booked'
+    };
+    
+    // Call the callback function to update unit status
+    if (onBookUnit) {
+      onBookUnit(unit.id, bookingData);
+    }
+    
+    toast.success(`Unit ${unit.name} has been successfully booked!`);
+    
+    // Close the drawer after successful submission
+    setTimeout(() => {
+      onClose();
+    }, 1000);
   };
 
   // Mock data for demonstration, replace with actual unit data
