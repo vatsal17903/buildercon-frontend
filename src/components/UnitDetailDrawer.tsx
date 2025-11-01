@@ -88,11 +88,10 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log('Form submitted with data:', formData);
+    e.stopPropagation();
     
     // Validate required fields for booking
-    if (!formData.buyerName || !formData.buyerEmail || !formData.buyerPhone) {
+    if (!formData.buyerName?.trim() || !formData.buyerEmail?.trim() || !formData.buyerPhone?.trim()) {
       toast.error('Please fill in all required buyer information fields');
       return;
     }
@@ -104,29 +103,29 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
     
     // Prepare booking data
     const bookingData = {
-      buyerName: formData.buyerName,
-      buyerEmail: formData.buyerEmail,
-      buyerPhone: formData.buyerPhone,
-      gstNumber: formData.gstNumber,
+      buyerName: formData.buyerName.trim(),
+      buyerEmail: formData.buyerEmail.trim(),
+      buyerPhone: formData.buyerPhone.trim(),
+      gstNumber: formData.gstNumber?.trim() || '',
       bookingDate: formData.bookingDate || new Date().toISOString().split('T')[0],
-      agreementDate: formData.agreementDate,
-      possessionDate: formData.possessionDate,
-      registrationDate: formData.registrationDate,
-      municipalTax: formData.municipalTax,
-      electricityTax: formData.electricityTax,
-      paymentType: formData.paymentType,
+      agreementDate: formData.agreementDate || '',
+      possessionDate: formData.possessionDate || '',
+      registrationDate: formData.registrationDate || '',
+      municipalTax: formData.municipalTax || '0',
+      electricityTax: formData.electricityTax || '0',
+      paymentType: formData.paymentType || 'cash',
       paidAmount: formData.paidAmount,
       status: 'booked'
     };
     
-    console.log('Booking data prepared:', bookingData);
-    console.log('Calling onBookUnit with unit.id:', unit.id);
-    
-    // Call the callback function to update unit status
-    if (onBookUnit) {
-      onBookUnit(unit.id, bookingData);
-    } else {
-      console.error('onBookUnit callback is not provided!');
+    try {
+      // Call the callback function to update unit status
+      if (onBookUnit && unit?.id) {
+        onBookUnit(unit.id, bookingData);
+      }
+    } catch (error) {
+      toast.error('Failed to book unit. Please try again.');
+      console.error('Booking error:', error);
     }
   };
 
@@ -290,7 +289,10 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
                 <div>
                   <Label htmlFor="buyerName" className="text-sm font-medium text-foreground">Name <span className="text-destructive">*</span></Label>
                   <Input 
-                    id="buyerName" 
+                    id="buyerName"
+                    name="buyerName"
+                    type="text"
+                    autoComplete="name"
                     value={formData.buyerName} 
                     onChange={(e) => handleInputChange('buyerName', e.target.value)}
                     placeholder="Enter buyer name"
@@ -301,8 +303,10 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
                 <div>
                   <Label htmlFor="buyerEmail" className="text-sm font-medium text-foreground">Email <span className="text-destructive">*</span></Label>
                   <Input 
-                    id="buyerEmail" 
+                    id="buyerEmail"
+                    name="buyerEmail"
                     type="email"
+                    autoComplete="email"
                     value={formData.buyerEmail} 
                     onChange={(e) => handleInputChange('buyerEmail', e.target.value)}
                     placeholder="Enter email address"
@@ -313,7 +317,10 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
                 <div>
                   <Label htmlFor="buyerPhone" className="text-sm font-medium text-foreground">Phone Number <span className="text-destructive">*</span></Label>
                   <Input 
-                    id="buyerPhone" 
+                    id="buyerPhone"
+                    name="buyerPhone"
+                    type="tel"
+                    autoComplete="tel"
                     value={formData.buyerPhone} 
                     onChange={(e) => handleInputChange('buyerPhone', e.target.value)}
                     placeholder="Enter phone number"
@@ -324,7 +331,9 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
                 <div>
                   <Label htmlFor="gstNumber" className="text-sm font-medium text-foreground">GST Number</Label>
                   <Input 
-                    id="gstNumber" 
+                    id="gstNumber"
+                    name="gstNumber"
+                    type="text"
                     value={formData.gstNumber} 
                     onChange={(e) => handleInputChange('gstNumber', e.target.value)}
                     placeholder="Enter GST number (optional)"
@@ -397,8 +406,12 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
               <div>
                 <Label htmlFor="municipalTax" className="text-sm font-medium text-foreground">Municipal Corporation Tax (₹)</Label>
                 <Input 
-                  id="municipalTax" 
+                  id="municipalTax"
+                  name="municipalTax"
                   type="number"
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
                   value={formData.municipalTax} 
                   onChange={(e) => handleInputChange('municipalTax', e.target.value)}
                   className="mt-1 bg-background border-accent/30 focus:border-accent" 
@@ -407,8 +420,12 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
               <div>
                 <Label htmlFor="electricityTax" className="text-sm font-medium text-foreground">Electricity Tax (₹)</Label>
                 <Input 
-                  id="electricityTax" 
+                  id="electricityTax"
+                  name="electricityTax"
                   type="number"
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
                   value={formData.electricityTax} 
                   onChange={(e) => handleInputChange('electricityTax', e.target.value)}
                   className="mt-1 bg-background border-accent/30 focus:border-accent" 
@@ -438,14 +455,19 @@ const UnitDetailDrawer: React.FC<UnitDetailDrawerProps> = ({
                 </Select>
               </div>
               <div>
-                <Label htmlFor="paidAmount" className="text-sm font-medium text-foreground">Paid Amount (₹)</Label>
+                <Label htmlFor="paidAmount" className="text-sm font-medium text-foreground">Paid Amount (₹) <span className="text-destructive">*</span></Label>
                 <Input 
-                  id="paidAmount" 
+                  id="paidAmount"
+                  name="paidAmount"
                   type="number"
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
                   value={formData.paidAmount} 
                   onChange={(e) => handleInputChange('paidAmount', e.target.value)}
                   placeholder="Enter paid amount"
                   className="mt-1 bg-background border-accent/30 focus:border-accent" 
+                  required
                 />
               </div>
             </div>
