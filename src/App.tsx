@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/components/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -20,7 +20,7 @@ function App() {
   return (
     <AuthProvider>
       <Toaster />
-      <BrowserRouter>
+      <HashRouter>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
             <Route path="/" element={<Navigate to="/login" />} />
@@ -86,7 +86,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 }
