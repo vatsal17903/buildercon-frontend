@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vatsal17903.github.io/coca-pearl-estate-ui/sitemap.xml
