@@ -1,0 +1,26 @@
+<svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 375C0 375 150 525 300 525C450 525 600 375 600 375L600 600H0V375Z" fill="black"/>
+<path d="M100 150H150V375H100V150Z" fill="black"/>
+<path d="M100 150L100 175L150 175L150 150L100 150Z" fill="white"/>
+<path d="M100 200H150V225H100V200Z" fill="white"/>
+<path d="M100 250H150V275H100V250Z" fill="white"/>
+<path d="M100 300H150V325H100V300Z" fill="white"/>
+<path d="M100 350H150V375H100V350Z" fill="white"/>
+<path d="M200 0H300V375H200V0Z" fill="black"/>
+<path d="M200 0L200 25L300 25L300 0L200 0Z" fill="white"/>
+<path d="M200 50H300V75H200V50Z" fill="white"/>
+<path d="M200 100H300V125H200V100Z" fill="white"/>
+<path d="M350 150H400V375H350V150Z" fill="black"/>
+<path d="M350 150L350 175L400 175L400 150L350 150Z" fill="white"/>
+<path d="M350 200H400V225H350V200Z" fill="white"/>
+<path d="M350 250H400V275H350V250Z" fill="white"/>
+<path d="M350 300H400V325H350V300Z" fill="white"/>
+<path d="M350 350H400V375H350V350Z" fill="white"/>
+<path d="M450 100H500V375H450V100Z" fill="black"/>
+<path d="M450 100L450 125L500 125L500 100L450 100Z" fill="white"/>
+<path d="M450 150H500V175H450V150Z" fill="white"/>
+<path d="M450 200H500V225H450V200Z" fill="white"/>
+<path d="M450 250H500V275H450V250Z" fill="white"/>
+<path d="M450 300H500V325H450V300Z" fill="white"/>
+<path d="M450 350H500V375H450V350Z" fill="white"/>
+</svg>

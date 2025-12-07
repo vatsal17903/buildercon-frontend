@@ -3,9 +3,12 @@ import { Building2, Home, Users, MapPin, TrendingUp, DollarSign } from 'lucide-r
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useAuth } from '@/components/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   // Mock data - replace with real API calls
   const dashboardData = {
@@ -151,16 +154,18 @@ const Dashboard: React.FC = () => {
                   { label: 'View Reports', href: '/reports' }
                 ] : [
                   { label: 'My Units', href: '/units' },
-                  { label: 'Add Listing', href: '/units/new' },
-                  { label: 'View Sales', href: '/sales' },
-                  { label: 'Update Profile', href: '/profile' }
+                  { label: 'My Buildings', href: '/buildings' },
+                  { label: 'View Bookings', href: '/units' },
+                  { label: 'Dashboard', href: '/dashboard' }
                 ]).map((action, index) => (
-                  <button
+                  <Button
                     key={index}
-                    className="p-3 text-left rounded-md border border-dashboard-border hover:bg-accent hover:text-accent-foreground transition-colors text-sm"
+                    variant="outline"
+                    onClick={() => navigate(action.href)}
+                    className="p-3 text-left justify-start h-auto hover:bg-accent hover:text-accent-foreground transition-colors text-sm font-medium"
                   >
                     {action.label}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </CardContent>

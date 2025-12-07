@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, Search, Filter, DollarSign, Home, Users, TrendingUp, Calendar, Phone, Mail } from 'lucide-react';
+import UnitDetailDrawer from '@/components/UnitDetailDrawer';
+import { toast } from 'sonner';
 
 interface Unit {
   id: string;
@@ -24,6 +26,14 @@ interface Unit {
   totalAmount?: number;
   paidAmount?: number;
   pendingAmount?: number;
+  // Additional booking details
+  gstNumber?: string;
+  agreementDate?: string;
+  possessionDate?: string;
+  registrationDate?: string;
+  municipalTax?: string;
+  electricityTax?: string;
+  paymentType?: string;
 }
 
 interface Payment {
@@ -121,7 +131,7 @@ const mockPayments: Payment[] = [
   }
 ];
 
-const UnitCard: React.FC<{ unit: Unit }> = ({ unit }) => {
+const UnitCard: React.FC<{ unit: Unit; onViewDetails: (unit: Unit) => void }> = ({ unit, onViewDetails }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'available': return 'bg-success text-success-foreground';
@@ -174,7 +184,7 @@ const UnitCard: React.FC<{ unit: Unit }> = ({ unit }) => {
           </div>
         )}
         
-        <Button variant="outline" size="sm" className="w-full">
+        <Button variant="outline" size="sm" className="w-full" onClick={() => onViewDetails(unit)}>
           <Eye className="h-4 w-4 mr-2" />
           View Details
         </Button>
@@ -184,11 +194,62 @@ const UnitCard: React.FC<{ unit: Unit }> = ({ unit }) => {
 };
 
 export default function Units() {
+  const [units, setUnits] = useState<Unit[]>(mockUnits);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [selectedUnit, setSelectedUnit] = useState<any>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const filteredUnits = mockUnits.filter(unit => {
+  const handleViewDetails = (unit: Unit) => {
+    // Transform the unit to match UnitDetailDrawer's expected format
+    const transformedUnit = {
+      ...unit,
+      name: unit.unitNumber, // Map unitNumber to name
+      status: unit.status as 'available' | 'booked'
+    };
+    setSelectedUnit(transformedUnit as any);
+    setIsDrawerOpen(true);
+  };
+
+  const handleBookUnit = (unitId: string, bookingData: any) => {
+    try {
+      setUnits(prevUnits => {
+        return prevUnits.map(unit =>
+          unit.id === unitId
+            ? {
+                ...unit,
+                status: 'booked' as const,
+                buyerName: bookingData.buyerName,
+                buyerEmail: bookingData.buyerEmail,
+                buyerPhone: bookingData.buyerPhone,
+                bookingDate: bookingData.bookingDate,
+                totalAmount: parseFloat(bookingData.paidAmount) * 2,
+                paidAmount: parseFloat(bookingData.paidAmount),
+                pendingAmount: parseFloat(bookingData.paidAmount),
+                // Store all additional booking details
+                gstNumber: bookingData.gstNumber,
+                agreementDate: bookingData.agreementDate,
+                possessionDate: bookingData.possessionDate,
+                registrationDate: bookingData.registrationDate,
+                municipalTax: bookingData.municipalTax,
+                electricityTax: bookingData.electricityTax,
+                paymentType: bookingData.paymentType
+              } as Unit
+            : unit
+        );
+      });
+      
+      // Close the drawer and show success message
+      toast.success('Unit has been successfully booked!');
+      setIsDrawerOpen(false);
+    } catch (error) {
+      toast.error('Failed to book unit. Please try again.');
+      console.error('Booking error:', error);
+    }
+  };
+
+  const filteredUnits = units.filter(unit => {
     const matchesSearch = unit.unitNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          unit.buyerName?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || unit.status === statusFilter;
@@ -197,10 +258,10 @@ export default function Units() {
     return matchesSearch && matchesStatus && matchesType;
   });
 
-  const totalUnits = mockUnits.length;
-  const bookedUnits = mockUnits.filter(u => u.status === 'booked').length;
-  const availableUnits = mockUnits.filter(u => u.status === 'available').length;
-  const totalRevenue = mockUnits
+  const totalUnits = units.length;
+  const bookedUnits = units.filter(u => u.status === 'booked').length;
+  const availableUnits = units.filter(u => u.status === 'available').length;
+  const totalRevenue = units
     .filter(u => u.status === 'booked')
     .reduce((sum, u) => sum + (u.paidAmount || 0), 0);
 
@@ -323,7 +384,7 @@ export default function Units() {
             {/* Units Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredUnits.map((unit) => (
-                <UnitCard key={unit.id} unit={unit} />
+                <UnitCard key={unit.id} unit={unit} onViewDetails={handleViewDetails} />
               ))}
             </div>
           </TabsContent>
@@ -338,7 +399,7 @@ export default function Units() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {mockUnits.filter(u => u.status === 'booked').map((unit) => (
+                  {units.filter(u => u.status === 'booked').map((unit) => (
                     <div key={unit.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-4">
                         <div>
@@ -404,6 +465,14 @@ export default function Units() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Unit Detail Drawer */}
+        <UnitDetailDrawer
+          open={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          unit={selectedUnit}
+          onBookUnit={handleBookUnit}
+        />
       </div>
     </DashboardLayout>
   );
